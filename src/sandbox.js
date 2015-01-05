@@ -1,4 +1,4 @@
-(function( self, globalEval ) {
+(function( self ) {
 
     var postMessage = self.postMessage,
         importScripts = self.importScripts;
@@ -55,6 +55,7 @@
                         error: e.toString()
                     }
                 } );
+                return;
             }
             postMessage( {
                 call: {
@@ -68,7 +69,7 @@
 
 
     var blacklist = [ 'Worker', 'addEventListener','removeEventListener', 'importScripts', 'postMessage', 'attachEvent', 'detachEvent',
-        'ActiveXObject', 'navigator', 'location', 'WebSocket' ];
+        'ActiveXObject', 'navigator', 'location'];
     
     for( var blockId in blacklist ){
         this[blacklist[blockId]] = undefined;
@@ -81,4 +82,4 @@
         }
     }
 
-}( self, eval ));
+}( self ));

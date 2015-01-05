@@ -1,5 +1,3 @@
-var global = this;
-
 function access() {
     return {
         document: typeof document === "undefined",

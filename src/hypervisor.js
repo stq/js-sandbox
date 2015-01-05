@@ -1,92 +1,91 @@
-window.Hypervisor = window.Hypervisor || new (function() {
+var Hypervisor = (function(Hypervisor) {
 
     if( !window.Worker ) {
         console.error("Worker API is not supported in this web client");
         return;
     }
 
-    function Sandbox(opts, onReady) {
-        var self = this;
-        var worker = new Worker(opts.wrapperPath || "../../src/sandbox.js");
-        var callstack = {};
-        var callId = 0;
-        var promise = new Promise();
-        var initTimeout = null;
+    Hypervisor.createSandbox = function(options) {
+        return new Sandbox(options);
+    };
 
-        worker.onmessage = function(event) {
-            if( event.data.init) {
+    return Hypervisor;
+}(Hypervisor || {}));
 
-                if( initTimeout != null ) {
-                    clearTimeout(initTimeout);
-                    initTimeout = null;
-                }
+function Sandbox(options) {
+    this.options = options;
+    this.worker = new Worker(options.wrapperPath || "sandbox.js");
+    this.callstack = {};
 
-                if( event.data.init.methods ) {
-
-                    _.each(event.data.init.methods, function(method) {
-                        self[method] = function() {
-                            var promise = new Promise();
-                            var request = {
-                                call: {
-                                    method: method,
-                                    id: callId++,
-                                    args: arguments
-                                }
-                            };
-                            callstack[request.call.id] = {promise: promise};
-                            if( opts.timeout ) {
-                                callstack[request.call.id].timeout = setTimeout(function() {
-                                    delete callstack[request.call.id];
-                                    promise.reject("timeout");
-                                    worker.terminate();
-                                }, opts.timeout);
-                            }
-                            worker.postMessage(request);
-                            return promise;
-                        }
-                    });
-                    promise.resolve(self);
-                } else if( event.data.init.error ) {
-                    console.log("Unable to load sandbox scripts", event.data.init.error);
-                    promise.reject(event.data.init.error);
-                }
-
-            } else if( event.data.call ) {
-                if( callstack[event.data.call.id] ) {
-
-                    if( callstack[event.data.call.id].timeout ) {
-                        clearTimeout(callstack[event.data.call.id].timeout);
-                    }
-
-                    var callPromise = callstack[event.data.call.id].promise;
-                    delete callstack[event.data.call.id];
-                    if( event.data.call.error ) {
-                        callPromise.reject(event.data.call.error);
-                    } else {
-                        callPromise.resolve(event.data.call.result);
-                    }
-                }
-            }
-        };
-
-        if( opts.timeout ) {
-            initTimeout = setTimeout(function() {
-                promise.reject('timeout');
-                worker.terminate();
-            }, opts.timeout);
+    this.worker.onmessage = function(event) {
+        if( event.data.init ) {
+            this.processInitResponse(event.data.init);
+        } else if( event.data.call ) {
+            this.processCallResponse(event.data.call);
         }
+    }.bind(this);
 
-        worker.postMessage({
-            init: {
-                src: opts.src
-            }
-        });
-        return promise;
+    return this.init();
+}
+
+Sandbox.prototype.init = function(){
+    this.initPromise = new Promise();
+    this.initTimeout = null;
+    if( this.options.timeout ) {
+        this.initTimeout = setTimeout(function() {
+            this.initPromise.reject('timeout');
+            this.worker.terminate();
+        }.bind(this), this.options.timeout);
     }
+    this.worker.postMessage({init: {src: this.options.src}});
+    return this.initPromise;
+};
 
-
-    this.createSandbox = function(opts, onReady) {
-        return new Sandbox(opts, onReady);
+Sandbox.prototype.processInitResponse = function(response) {
+    if( response.methods ) {
+        _.each(response.methods, function(methodName) {
+            this[methodName] = this.createCallWrapper(methodName);
+        }.bind(this));
+        clearTimeout(this.initTimeout);
+        this.initPromise.resolve(this);
+    } else if( response.error ) {
+        console.log("Unable to load scripts into the sandbox", response.error);
+        this.initPromise.reject(response.error);
+    } else {
+        console.log("Unknown sandbox init error");
     }
-
-});
+};
+Sandbox.prototype.processCallResponse = function(response) {
+    var call = this.callstack[response.id];
+    if( call ) {
+        delete this.callstack[call.id];
+        call.timeout && clearTimeout(call.timeout);
+        response.error ? call.promise.reject(response.error) : call.promise.resolve(response.result);
+    } else {
+        console.log("Unknown call response");
+    }
+};
+Sandbox.prototype.createCallWrapper = function(methodName) {
+    var callId = 0;
+    return function() {
+        var callPromise = new Promise(),
+            id = callId++,
+            request = {
+                call: {
+                    method: methodName,
+                    id: id,
+                    args: arguments
+                }
+            };
+        this.callstack[id] = {promise: callPromise};
+        if( this.options.timeout ) {
+            this.callstack[id].timeout = setTimeout(function() {
+                delete this.callstack[id];
+                callPromise.reject("timeout");
+                this.worker.terminate();
+            }.bind(this), this.options.timeout);
+        }
+        this.worker.postMessage(request);
+        return callPromise;
+    }.bind(this);
+};
