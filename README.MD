@@ -50,7 +50,7 @@ Usage
 
 1. Include `promise.js` (hypervisor uses simple promise implementation to avoid callback mess)
 2. Include `hypervisor.js` script
-3. Make sure `sandbox.js` script available on `/hypervisor/` context.
+3. Make sure `sandbox.js` script available at `<site>/src/sandbox.js` url (or use `wrapperPath` option)
 4. Create a sandbox instance by calling
 
     Hypervisor.createSandbox(options).then(function(sandbox) {});
@@ -59,7 +59,8 @@ Options object:
 
     {
         src: [ ], //an array of string references to javascript files to execute in sandbox on create
-        timeout: 1000 //optional timeout in ms: causes sandbox termination if init or method take more then `timeout` time
+        timeout: 1000, //optional timeout in ms: causes sandbox termination if init or method take more then `timeout` time
+        wrapperPath: '/sandbox.js' //optional custom path to sandbox.js
     }
 
 Global methods in scripts provided in `src` option will be exposed on the `sandbox` object with only one difference from

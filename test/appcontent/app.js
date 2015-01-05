@@ -16,15 +16,15 @@ angular.module('app', [])
             init: function() {
                 Hypervisor.createSandbox({
                     src: [
-                        "/3rdparty/lib/pnglib.js",
-                        "/3rdparty/img-gen.js"
+                        "../test/3rdparty/lib/pnglib.js",
+                        "../test/3rdparty/img-gen.js"
                     ]
                 }).then(function(sandbox) {
                     $scope.sandbox = sandbox;
                 });
             },
             run: function() {
-                $http.get("/testapp/img-params.json")
+                $http.get("img-params.json")
                     .then(function(rs) {
                         $scope.sandbox.buildImg(256, rs.data.seed, rs.data.scale)
                             .then(function(img) {
@@ -72,7 +72,7 @@ angular.module('app', [])
         $scope.runTests = function() {
             var opts = {
                 src: [
-                    "/3rdparty/unsafe.js"
+                    "../test/3rdparty/unsafe.js"
                 ]
             };
             initTest(opts).then(function(sandbox) {
@@ -87,7 +87,7 @@ angular.module('app', [])
             initTest(opts).then(function(sandbox) {
                 return $scope.test.loop(sandbox);
             });
-            opts.src.push('/3rdparty/long-init.js');
+            opts.src.push('../test/3rdparty/long-init.js');
             initTest(opts).then(function(sandbox) {
                 $scope.testResults.longInit = 'Failed';
             }, function(err){

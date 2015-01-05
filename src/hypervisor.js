@@ -7,7 +7,7 @@ window.Hypervisor = window.Hypervisor || new (function() {
 
     function Sandbox(opts, onReady) {
         var self = this;
-        var worker = new Worker("hypervisor/sandbox.js");
+        var worker = new Worker(opts.wrapperPath || "../../src/sandbox.js");
         var callstack = {};
         var callId = 0;
         var promise = new Promise();
@@ -47,8 +47,8 @@ window.Hypervisor = window.Hypervisor || new (function() {
                     });
                     promise.resolve(self);
                 } else if( event.data.init.error ) {
-                    console.log("Unable to load sandbox scripts", e);
-                    promise.reject(e);
+                    console.log("Unable to load sandbox scripts", event.data.init.error);
+                    promise.reject(event.data.init.error);
                 }
 
             } else if( event.data.call ) {
@@ -58,10 +58,12 @@ window.Hypervisor = window.Hypervisor || new (function() {
                         clearTimeout(callstack[event.data.call.id].timeout);
                     }
 
+                    var callPromise = callstack[event.data.call.id].promise;
+                    delete callstack[event.data.call.id];
                     if( event.data.call.error ) {
-                        callstack[event.data.call.id].promise.reject(event.data.call.error);
+                        callPromise.reject(event.data.call.error);
                     } else {
-                        callstack[event.data.call.id].promise.resolve(event.data.call.result);
+                        callPromise.resolve(event.data.call.result);
                     }
                 }
             }
