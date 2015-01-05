@@ -7,6 +7,11 @@ About
 * Goal 1 : Execute unsafe js code without access to window, document(and its cookies), local storage of the container page.
 * Goal 2 : Extendable API (sandboxed code modularization, secure DOM access, cookies/storage virtualization, infinite loop protection)
 
+Demo
+----
+
+Check demo [here](http://stq.github.io/js-sandbox)
+
 Solution
 --------
 
@@ -40,6 +45,35 @@ detect infinite loops, but there is a cheap solution to achieve that, originally
 detects and overwrite loops in the code injecting loop prevention control points. This solution is not the best, because it actually
 modifies code (what if the protected code would try to do the same thing?), but it would work in 99.9~% cases.
 
+Usage
+-----
+
+1. Include `promise.js` (hypervisor uses simple promise implementation to avoid callback mess)
+2. Include `hypervisor.js` script
+3. Make sure `sandbox.js` script available on `/hypervisor/` context.
+4. Create a sandbox instance by calling
+
+    Hypervisor.createSandbox(options).then(function(sandbox) {});
+
+Options object:
+
+    {
+        src: [ ], //an array of string references to javascript files to execute in sandbox on create
+        timeout: 1000 //optional timeout in ms: causes sandbox termination if init or method take more then `timeout` time
+    }
+
+Global methods in scripts provided in `src` option will be exposed on the `sandbox` object with only one difference from
+original implementation - sandboxed methods are asynchronous, i.e. each method returns promise object.
+
+So, to call a method named `myMethod`:
+
+    sandbox.myMethod(args)
+        .then(
+            function(result){}, //success handler
+            function(error){} //optional error handler
+        );
+
+
 Sources
 -------
 
@@ -67,5 +101,4 @@ Similar projects:
 * [a js sandbox with working inf loop detection](http://jsbin.com/)
 
 Snippets:
-* [angularish prism](http://stackoverflow.com/questions/22742899/using-prismjs-in-angular-app)
 * [julia set](http://stackoverflow.com/questions/19671543/js-canvas-implementation-of-julia-set)

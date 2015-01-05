@@ -46,16 +46,6 @@ angular.module('app', [])
         $scope.testResults = {};
 
         $scope.test = {
-            destroy: function(sandbox) {
-                return sandbox.destroy().then(function() {
-                    sandbox.availabilityCheck().then(function(rs) {
-                        $scope.testResults.destroy = rs ? 'Passed' : 'Failed';
-                        $scope.$apply();
-                    }, function() {
-                        $scope.testResults.destroy = 'Fail';
-                    });
-                });
-            },
             access: function(sandbox) {
                 return sandbox.access().then(function(rs) {
                     $scope.testResults.access = rs;
@@ -86,9 +76,6 @@ angular.module('app', [])
                 ]
             };
             initTest(opts).then(function(sandbox) {
-                return $scope.test.destroy(sandbox);
-            });
-            initTest(opts).then(function(sandbox) {
                 return $scope.test.access(sandbox);
             });
             initTest(opts).then(function(sandbox) {
@@ -96,7 +83,7 @@ angular.module('app', [])
             });
 
             opts = _.clone(opts);
-            opts.config = { timeout: 1000 };
+            opts.timeout = 1000;
             initTest(opts).then(function(sandbox) {
                 return $scope.test.loop(sandbox);
             });

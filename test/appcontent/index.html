@@ -22,12 +22,7 @@
 
 <h1>Js-sandbox: a javascript sandboxing framework</h1>
 
-<h2>
-    About
-</h2>
-
-<div></div>
-
+<a href="http://github.com/stq/js-sandbox">About project and source code</a>
 
 <h2>
     Usage
@@ -71,8 +66,6 @@
         <aside>Method call is being proxied to 3rd party script <code>img-gen.js</code> which runs in sandbox and its result is provided in promise resolution args</aside>
     </div>
 
-
-
     <div class="snippet">
         <div class="snippet-code">
             <pre><code class="language-javascript">{{format(example.run)}}</code></pre>
@@ -107,16 +100,13 @@
         </div>
         <div class="snippet-results" ng-class="{ on: _.keys(testResults).length > 0 }">
             <table>
-                <tr ng-if="testResults.access"><td colspan="3">Resource access</td></tr>
+                <tr ng-if="testResults.access || testResults.steal"><td colspan="3">Resource access block</td></tr>
                 <tr ng-repeat="(name, result) in testResults.access">
                     <td></td><td>{{name}}</td><td>{{result ? 'Passed' : 'Failed' }}</td>
                 </tr>
-                <tr ng-if="testResults.steal"><td></td><td>Unauthorized access</td><td ng-bind="testResults.steal"></td></tr>
+                <tr ng-if="testResults.steal"><td></td><td>crossdomain</td><td ng-bind="testResults.steal"></td></tr>
 
-                <tr ng-if="testResults.destroy"><td colspan="3">Durability</td></tr>
-                <tr ng-if="testResults.destroy"><td></td><td>Worker protection</td><td ng-bind="testResults.destroy"></td></tr>
-
-                <tr ng-if="testResults.loop || testResults.longInit"><td colspan="3">Timeout</td></tr>
+                <tr ng-if="testResults.loop || testResults.longInit"><td colspan="3">Termination by timeout</td></tr>
                 <tr ng-if="testResults.loop"><td></td><td>Call</td><td ng-bind="testResults.loop"></td></tr>
                 <tr ng-if="testResults.longInit"><td></td><td>Init</td><td ng-bind="testResults.longInit"></td></tr>
             </table>

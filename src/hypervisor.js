@@ -34,12 +34,12 @@ window.Hypervisor = window.Hypervisor || new (function() {
                                 }
                             };
                             callstack[request.call.id] = {promise: promise};
-                            if( opts.config && opts.config.timeout ) {
+                            if( opts.timeout ) {
                                 callstack[request.call.id].timeout = setTimeout(function() {
                                     delete callstack[request.call.id];
                                     promise.reject("timeout");
                                     worker.terminate();
-                                }, opts.config.timeout);
+                                }, opts.timeout);
                             }
                             worker.postMessage(request);
                             return promise;
@@ -67,11 +67,11 @@ window.Hypervisor = window.Hypervisor || new (function() {
             }
         };
 
-        if( opts.config && opts.config.timeout ) {
+        if( opts.timeout ) {
             initTimeout = setTimeout(function() {
                 promise.reject('timeout');
                 worker.terminate();
-            }, opts.config.timeout);
+            }, opts.timeout);
         }
 
         worker.postMessage({
