@@ -7,7 +7,7 @@ window.Hypervisor = window.Hypervisor || new (function() {
 
     function Sandbox(opts, onReady) {
         var self = this;
-        var worker = new Worker("hypervisor/sandbox.js");
+        var worker = new Worker(opts.wrapperPath || "/src/sandbox.js");
         var callstack = {};
         var callId = 0;
         var promise = new Promise();
