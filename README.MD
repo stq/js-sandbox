@@ -19,7 +19,7 @@ Solution
 
 The first goal is achieved by use of Dedicated [Web Workers](http://www.w3.org/TR/workers/).
 
-Talking on the second goal, an extendability will be provided by module pattern at Hypervisor object and by prototypical approach at Sandbox (a Worker wrapper),
+The second goal: an extendability achieved by module pattern at Hypervisor object and by prototypical approach at Sandbox (a Worker wrapper),
 thus allowing to override/augument/wrap default functionality without modification of the original code.
 
 Possible improvements
