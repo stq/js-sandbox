@@ -44,7 +44,7 @@
         <div class="snippet-results"  ng-class="{ on: sandbox }">
             <div ng-if="sandbox">Created <code class="language-javascript">sandbox</code> object with following methods:
                 <code class="language-javascript">
-                    <div ng-repeat="key in _.keys(sandbox)">{{key}}: function(...){ ... }</div>
+                    <div ng-repeat="key in _.keys(sandbox)" ng-if="_.isFunction(sandbox[key])">{{key}}: function(...){ ... }</div>
                 </code>
                 <div>
                     When scripts are loaded into the sandbox, their global methods are exposed as a part of the sandbox

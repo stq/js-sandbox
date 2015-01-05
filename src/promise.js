@@ -2,6 +2,7 @@
 // License MIT
 // For more robust promises, see https://github.com/briancavalier/when.js.
 
+
 function Promise () {
     this._thens = [];
 }
@@ -43,11 +44,6 @@ Promise.prototype = {
     // could be just about anything and is specific to your implementation.
     // progress: function (data) {},
 
-    //provide a decorator method to call after resolve & reject call
-    decorate: function(decorator) {
-        this.decorator = decorator;
-    },
-
     /* "Private" methods. */
 
     _complete: function (which, arg) {
@@ -62,7 +58,7 @@ Promise.prototype = {
         // disallow multiple calls to resolve or reject
         this.resolve = this.reject =
             function () {
-                throw new Error('Promise already completed.');
+                throw new Error('Promise already completed.' + this.name);
             };
         // complete all waiting (async) then()s
         var aThen, i = 0;

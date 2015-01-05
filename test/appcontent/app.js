@@ -7,10 +7,16 @@ angular.module('app', [])
     }])
     .controller('app', ['$scope', '$http', function($scope, $http) {
 
-        //since it's not an angularish promise we need manually tell to run digest
-        Promise.prototype.decorate(function(){
+        var resolve = Promise.prototype.resolve;
+        Promise.prototype.resolve = function(){
+            resolve.apply(this, arguments);
             $scope.$apply();
-        });
+        };
+        var reject = Promise.prototype.reject;
+        Promise.prototype.reject = function(){
+            reject.apply(this, arguments);
+            $scope.$apply();
+        };
 
         $scope.example = {
             init: function() {
@@ -18,8 +24,10 @@ angular.module('app', [])
                     src: [
                         "../test/3rdparty/lib/pnglib.js",
                         "../test/3rdparty/img-gen.js"
-                    ]
+                    ],
+                    wrapperPath: "../../src/sandbox.js"
                 }).then(function(sandbox) {
+                    console.log(sandbox);
                     $scope.sandbox = sandbox;
                 });
             },
@@ -73,7 +81,8 @@ angular.module('app', [])
             var opts = {
                 src: [
                     "../test/3rdparty/unsafe.js"
-                ]
+                ],
+                wrapperPath: "../../src/sandbox.js"
             };
             initTest(opts).then(function(sandbox) {
                 return $scope.test.access(sandbox);
