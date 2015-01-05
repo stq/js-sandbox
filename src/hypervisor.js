@@ -7,7 +7,7 @@ window.Hypervisor = window.Hypervisor || new (function() {
 
     function Sandbox(opts, onReady) {
         var self = this;
-        var worker = new Worker(opts.wrapperPath || "/src/sandbox.js");
+        var worker = new Worker(opts.wrapperPath || "../../src/sandbox.js");
         var callstack = {};
         var callId = 0;
         var promise = new Promise();
@@ -47,8 +47,8 @@ window.Hypervisor = window.Hypervisor || new (function() {
                     });
                     promise.resolve(self);
                 } else if( event.data.init.error ) {
-                    console.log("Unable to load sandbox scripts", e);
-                    promise.reject(e);
+                    console.log("Unable to load sandbox scripts", event.data.init.error);
+                    promise.reject(event.data.init.error);
                 }
 
             } else if( event.data.call ) {
