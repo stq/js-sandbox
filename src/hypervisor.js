@@ -58,10 +58,12 @@ window.Hypervisor = window.Hypervisor || new (function() {
                         clearTimeout(callstack[event.data.call.id].timeout);
                     }
 
+                    var callPromise = callstack[event.data.call.id].promise;
+                    delete callstack[event.data.call.id];
                     if( event.data.call.error ) {
-                        callstack[event.data.call.id].promise.reject(event.data.call.error);
+                        callPromise.reject(event.data.call.error);
                     } else {
-                        callstack[event.data.call.id].promise.resolve(event.data.call.result);
+                        callPromise.resolve(event.data.call.result);
                     }
                 }
             }

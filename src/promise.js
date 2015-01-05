@@ -61,7 +61,9 @@ Promise.prototype = {
             };
         // disallow multiple calls to resolve or reject
         this.resolve = this.reject =
-            function () { throw new Error('Promise already completed.'); };
+            function () {
+                throw new Error('Promise already completed.');
+            };
         // complete all waiting (async) then()s
         var aThen, i = 0;
         while (aThen = this._thens[i++]) { aThen[which] && aThen[which](arg); }
