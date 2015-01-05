@@ -109,3 +109,4 @@ Similar projects:
 
 Snippets:
 * [julia set](http://stackoverflow.com/questions/19671543/js-canvas-implementation-of-julia-set)
+* [tiny promise](https://gist.github.com/briancavalier/814313)
