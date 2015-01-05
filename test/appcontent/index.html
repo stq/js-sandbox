@@ -1,0 +1,133 @@
+<html ng-app="app">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>A test and example app for js-sandbox framework</title>
+
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+    <link href="style/prism.css" rel="stylesheet"/>
+    <link href="style/app.css" rel="stylesheet"/>
+
+    <script type="text/javascript" src="hypervisor/promise.js"></script>
+    <script type="text/javascript" src="hypervisor/hypervisor.js"></script>
+
+    <script type="text/javascript" src="lib/angular.min.js"></script>
+    <script type="text/javascript" src="lib/lodash.min.js"></script>
+    <script type="text/javascript" src="lib/prism.js"></script>
+
+    <script type="text/javascript" src="app.js"></script>
+</head>
+<body ng-controller="app">
+
+<h1>Js-sandbox: a javascript sandboxing framework</h1>
+
+<h2>
+    About
+</h2>
+
+<div></div>
+
+
+<h2>
+    Usage
+</h2>
+
+<div>
+    <h3>Initialization</h3>
+
+    <div>Invoke <code class="language-javascript">Hypervisor.createSandbox({ src: [...] })</code> to create sandbox
+        and load it with scripts referenced by <code class="language-javascript">src</code> array.
+        <aside>Due to async nature of worker thread, all sandbox methods are async.</aside>
+    </div>
+
+    <div class="snippet">
+        <div class="snippet-code">
+            <pre><code class="language-javascript">{{format(example.init)}}</code></pre>
+            <div class="btn" ng-click="example.init()">Run code</div>
+        </div>
+        <div class="snippet-results"  ng-class="{ on: sandbox }">
+            <div ng-if="sandbox">Created <code class="language-javascript">sandbox</code> object with following methods:
+                <code class="language-javascript">
+                    <div ng-repeat="key in _.keys(sandbox)">{{key}}: function(...){ ... }</div>
+                </code>
+                <div>
+                    When scripts are loaded into the sandbox, their global methods are exposed as a part of the sandbox
+                    interface by async proxy functions.
+                </div>
+           </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+<div ng-show="sandbox">
+
+    <h3>Example of sandboxed code call</h3>
+
+    <div>Here we call a sandboxed method <code class="language-javascript">sandbox.buildImg(..)</code> which generates an image.
+        <aside>Method call is being proxied to 3rd party script <code>img-gen.js</code> which runs in sandbox and its result is provided in promise resolution args</aside>
+    </div>
+
+
+
+    <div class="snippet">
+        <div class="snippet-code">
+            <pre><code class="language-javascript">{{format(example.run)}}</code></pre>
+            <div class="btn" ng-click="example.run()">Run code</div>
+        </div>
+        <div class="snippet-results"  ng-class="{ on: example.image }">
+            <div ng-if="example.image">
+                <div>
+                    An image data was generated in the sandboxed code and passed to main app for display:
+                    <img height="256" width="256" src="{{example.image}}"> </img>
+                </div>
+           </div>
+        </div>
+    </div>
+
+</div>
+
+<h2>
+    Tests
+</h2>
+
+
+<div>
+    <div class="snippet">
+        <div class="snippet-code">
+            <div>
+                <p>The sandbox should protect cookies, storage and have no network access.</p>
+                <p>Also, while sandboxed code could modify itself, it should't be able to break sandbox itself.</p>
+                <p>And also it should provide ability to forcefully stop scripts which take too much time (both on script init and script call).</p>
+            </div>
+            <div class="btn" ng-click="runTests()">Run tests</div>
+        </div>
+        <div class="snippet-results" ng-class="{ on: _.keys(testResults).length > 0 }">
+            <table>
+                <tr ng-if="testResults.access"><td colspan="3">Resource access</td></tr>
+                <tr ng-repeat="(name, result) in testResults.access">
+                    <td></td><td>{{name}}</td><td>{{result ? 'Passed' : 'Failed' }}</td>
+                </tr>
+                <tr ng-if="testResults.steal"><td></td><td>Unauthorized access</td><td ng-bind="testResults.steal"></td></tr>
+
+                <tr ng-if="testResults.destroy"><td colspan="3">Durability</td></tr>
+                <tr ng-if="testResults.destroy"><td></td><td>Worker protection</td><td ng-bind="testResults.destroy"></td></tr>
+
+                <tr ng-if="testResults.loop || testResults.longInit"><td colspan="3">Timeout</td></tr>
+                <tr ng-if="testResults.loop"><td></td><td>Call</td><td ng-bind="testResults.loop"></td></tr>
+                <tr ng-if="testResults.longInit"><td></td><td>Init</td><td ng-bind="testResults.longInit"></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div>
+</div>
+
+
+</body>
+</html>
